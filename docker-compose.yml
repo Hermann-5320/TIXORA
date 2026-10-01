@@ -1,0 +1,60 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  api:
+    build: ./backend
+    environment:
+      DB_URL: jdbc:postgresql://db:5432/${POSTGRES_DB}
+      DB_USER: ${POSTGRES_USER}
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+      CORS_ORIGINS: ${CORS_ORIGINS}
+      APP_PUBLIC_URL: ${APP_PUBLIC_URL:-http://localhost:8081}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
+      SEED_DEMO: ${SEED_DEMO:-false}
+      APP_TIMEZONE: ${APP_TIMEZONE:-Africa/Douala}
+      API_PUBLIC_URL: ${API_PUBLIC_URL:-}
+      COMMISSION_PERCENT: ${COMMISSION_PERCENT:-10}
+      ORDER_TTL_MINUTES: ${ORDER_TTL_MINUTES:-10}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+      SERPAPI_KEY: ${SERPAPI_KEY:-}
+      CTPAY_MODE: ${CTPAY_MODE:-simulate}
+      CTPAY_BASE_URL: ${CTPAY_BASE_URL:-https://gateway-prod.connecttechnology.io}
+      CTPAY_TOKEN: ${CTPAY_TOKEN:-}
+      CTPAY_FEE_PERCENT: ${CTPAY_FEE_PERCENT:-4.78}
+      CTPAY_OPERATORS: ${CTPAY_OPERATORS:-MOMO,OM}
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8082:8080"
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_MODE: api
+        VITE_API_URL: http://localhost:8082/api
+    depends_on:
+      - api
+    ports:
+      - "8081:80"
+    restart: unless-stopped
+
+volumes:
+  pgdata:

@@ -1,0 +1,62 @@
+server:
+  port: ${PORT:8080}
+  # Derriere Render/Nginx : reconstruit les URLs publiques (liens de partage) depuis X-Forwarded-*
+  forward-headers-strategy: framework
+spring:
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+  jpa:
+    open-in-view: false
+    hibernate:
+      # Le schema est gere par Flyway (db/migration). Mettre DDL_AUTO=validate pour verifier la coherence au demarrage.
+      ddl-auto: ${DDL_AUTO:none}
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    # Base creee avant Flyway (ancienne version, ddl-auto=update) : elle est reconnue comme etat V1 puis migree.
+    baseline-on-migrate: true
+    baseline-version: 1
+  servlet:
+    multipart:
+      max-file-size: 3MB
+      max-request-size: 4MB
+app:
+  jwt-secret: ${JWT_SECRET}
+  jwt-ttl-minutes: ${JWT_TTL_MINUTES:120}
+  cors-origins: ${CORS_ORIGINS:http://localhost:8081,http://localhost:5173}
+  # Fuseau utilise pour decider qu'un evenement est termine (les dates des evenements n'ont pas de fuseau)
+  timezone: ${APP_TIMEZONE:Africa/Douala}
+  # URL publique du frontend (liens de partage). Vide = meme origine que l'API (cas Nginx).
+  public-url: ${APP_PUBLIC_URL:}
+  # Compte administrateur cree au demarrage s'il n'existe pas (laisser vide pour ne rien creer)
+  admin-email: ${ADMIN_EMAIL:}
+  admin-password: ${ADMIN_PASSWORD:}
+  # Commission de Tixora sur les ventes de billets (en %), reversee par l'admin en deduisant ce pourcentage
+  commission-percent: ${COMMISSION_PERCENT:10}
+  # URL publique de l'API (https obligatoire pour CT Pay) : sert au callback de paiement. Vide = pas de callback.
+  api-public-url: ${API_PUBLIC_URL:}
+  # Delai laisse au client pour valider le paiement sur son telephone avant liberation des places
+  order-ttl-minutes: ${ORDER_TTL_MINUTES:10}
+  # Connexion avec Google : Client ID OAuth "Application Web" (identifiant public). Vide = bouton masque.
+  google-client-id: ${GOOGLE_CLIENT_ID:}
+  # Recherche precise des lieux (SerpApi). SECRET : lu uniquement ici, jamais envoye au navigateur. Vide = repli sur OpenStreetMap.
+  serpapi-key: ${SERPAPI_KEY:}
+  ctpay:
+    # simulate : aucun appel reseau ni debit (developpement) ; live : paiements reels via CT Pay
+    mode: ${CTPAY_MODE:simulate}
+    base-url: ${CTPAY_BASE_URL:https://gateway-prod.connecttechnology.io}
+    # SECRET marchand CT Pay : uniquement cote serveur
+    token: ${CTPAY_TOKEN:}
+    # Frais CT Pay (en %) : CT Pay les ajoute au montant, le client paie prix + frais (estimation d'affichage, valeur reelle lue dans la reponse CT Pay)
+    fee-percent: ${CTPAY_FEE_PERCENT:4.78}
+    # Operateurs proposes aux clients (CT Pay marque MOMO/OM non actifs tout en les acceptant)
+    operators: ${CTPAY_OPERATORS:MOMO,OM}
+  # true : cree un organisateur, un client et des evenements de demonstration (base vide uniquement)
+  seed-demo: ${SEED_DEMO:false}
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health

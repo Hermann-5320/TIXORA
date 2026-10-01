@@ -1,0 +1,92 @@
+@import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Palette Tixora : dégradé orange -> rose -> violet du logo, orange pour les actions. */
+:root {
+  --bg: #f5f6fa;
+  --surface: #ffffff;
+  --surface-2: #eceef5;
+  --fg: #0f172a;
+  --muted: #5b6478;
+  --line: #e1e5ef;
+  --brand: #f24e12;
+  --brand-hover: #d63f06;
+  --brand-soft: #fff0e8;
+  --accent: #7c3aed;
+  --nav: #0b1220;
+}
+.dark {
+  --bg: #090e1b;
+  --surface: #121a2e;
+  --surface-2: #1a2440;
+  --fg: #e9edf7;
+  --muted: #97a3bb;
+  --line: #24304f;
+  --brand: #ff6a33;
+  --brand-hover: #ff8455;
+  --brand-soft: #2b1b16;
+  --accent: #a78bfa;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-fg: var(--fg);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-brand: var(--brand);
+  --color-brand-hover: var(--brand-hover);
+  --color-brand-soft: var(--brand-soft);
+  --color-accent: var(--accent);
+  --color-nav: var(--nav);
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+@layer base {
+  html { color-scheme: light; }
+  html.dark { color-scheme: dark; }
+  body { @apply bg-bg text-fg antialiased; overflow-x: clip; -webkit-tap-highlight-color: transparent; }
+  button, a, select, summary { touch-action: manipulation; }
+  img { max-width: 100%; }
+  :focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+}
+
+@layer components {
+  .btn-primary { @apply inline-flex items-center justify-center gap-2 rounded-xl bg-brand px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-hover disabled:cursor-not-allowed disabled:opacity-50; }
+  .btn-outline { @apply inline-flex items-center justify-center gap-2 rounded-xl border border-line bg-surface px-4 py-2.5 text-sm font-semibold text-fg transition hover:bg-surface-2 disabled:cursor-not-allowed disabled:opacity-50; }
+  .btn-danger { @apply inline-flex items-center justify-center gap-2 rounded-xl bg-red-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50; }
+  .btn-sm { @apply !px-3 !py-1.5 !text-xs; }
+  .input { @apply w-full rounded-xl border border-line bg-surface px-3 py-2.5 text-base text-fg sm:text-sm placeholder-muted/70 focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/25; }
+  .card { @apply rounded-2xl border border-line bg-surface p-6 shadow-sm; }
+  .chip { @apply inline-flex items-center gap-1.5 rounded-full border border-line bg-surface px-3.5 py-1.5 text-sm font-medium text-fg transition hover:border-brand hover:text-brand; }
+  .chip-active { @apply !border-brand !bg-brand !text-white hover:!text-white; }
+  .badge { @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold; }
+}
+
+/* Cartes Leaflet : épingle Tixora et tuiles assombries en mode nuit. */
+.leaflet-container { font-family: inherit; }
+.dark .leaflet-tile-pane { filter: invert(1) hue-rotate(180deg) brightness(0.95) contrast(0.9); }
+.tx-pin { background: none; border: none; }
+.tx-pin span { display: block; width: 26px; height: 26px; border-radius: 50% 50% 50% 0; background: linear-gradient(135deg, #ffb020, #f0367f 55%, #7c3aed); border: 3px solid #fff; box-shadow: 0 2px 8px rgba(0,0,0,.4); transform: rotate(-45deg); }
+.tx-me { background: none; border: none; }
+.tx-me span { display: block; width: 18px; height: 18px; border-radius: 50%; background: #2563eb; border: 3px solid #fff; box-shadow: 0 0 0 6px rgba(37,99,235,.25); }
+.leaflet-popup-content-wrapper { border-radius: 12px; }
+
+@keyframes tx-bar { 0% { margin-left: -35%; } 100% { margin-left: 100%; } }
+@keyframes tx-slide-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+.tx-toast { animation: tx-slide-in .2s ease-out; }
+.no-scrollbar { scrollbar-width: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+
+/* Tactile (téléphones et tablettes) : zones de toucher d'au moins 44 px. */
+@media (pointer: coarse) {
+  .btn-primary, .btn-outline, .btn-danger, .chip, .input { min-height: 44px; }
+  .btn-sm { min-height: 38px; }
+}
+
+/* Encoche et barres système : le contenu reste lisible, l'en-tête et le pied de page respectent les zones sûres. */
+header.sticky { padding-top: env(safe-area-inset-top); }
+footer { padding-bottom: env(safe-area-inset-bottom); }
+.tx-safe-x { padding-left: env(safe-area-inset-left); padding-right: env(safe-area-inset-right); }
+.leaflet-container { touch-action: pan-x pan-y; }

@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <meta name="theme-color" content="#0b1220" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="description" content="Tixora : achetez vos billets d'événements au Cameroun et présentez votre QR code à l'entrée." />
+    <title>Tixora | Billetterie en ligne</title>
+    <script>
+      // Applique le thème et la langue avant le premier affichage (évite le flash blanc).
+      try {
+        var t = localStorage.getItem("tx_theme");
+        if (t === "dark" || (!t && window.matchMedia("(prefers-color-scheme: dark)").matches)) document.documentElement.classList.add("dark");
+        var l = localStorage.getItem("tx_lang");
+        document.documentElement.lang = l || ((navigator.language || "fr").toLowerCase().startsWith("en") ? "en" : "fr");
+      } catch (e) {}
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
